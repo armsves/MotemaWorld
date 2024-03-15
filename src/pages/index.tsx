@@ -12,21 +12,21 @@ export default function Home() {
 		throw new Error("app_id is not set in environment variables!");
 	}
 
-	type User = {
+	type Miner = {
 		id: number;
-		name: string;
+		create_time: Date;
+		address: string;
+		nullifier_hash: string;
 		// include other properties as needed
 	}
 
-	const [users, setUsers] = useState<User[]>([])
+	const [miners, setMiners] = useState<Miner[]>([])
 
-	/*
 	useEffect(() => {
-		fetch('/api/users')
+		fetch('/api/miners')
 			.then(response => response.json())
-			.then(data => setUsers(data))
+			.then(data => setMiners(data))
 	}, [])
-*/
 
 	const onSuccess = (result: ISuccessResult) => {
 		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
@@ -79,8 +79,8 @@ export default function Home() {
 				</IDKitWidget>
 			</div>
 			<div>
-				{users.map(user => (
-					<div key={user.id}>{user.name}</div>
+				{miners.map(miner => (
+					<div key={miner.id}>{miner.address}</div>
 				))}
 			</div>
 		</div>
