@@ -1,6 +1,8 @@
 import { VerificationLevel, IDKitWidget } from "@worldcoin/idkit";
 import type { ISuccessResult } from "@worldcoin/idkit";
 import type { VerifyReply } from "./api/verify";
+import { useEffect, useState } from 'react'
+
 
 export default function Home() {
 	if (!process.env.NEXT_PUBLIC_WLD_APP_ID) {
@@ -10,13 +12,30 @@ export default function Home() {
 		throw new Error("app_id is not set in environment variables!");
 	}
 
+	type User = {
+		id: number;
+		name: string;
+		// include other properties as needed
+	}
+
+	const [users, setUsers] = useState<User[]>([])
+
+	/*
+	useEffect(() => {
+		fetch('/api/users')
+			.then(response => response.json())
+			.then(data => setUsers(data))
+	}, [])
+*/
+
 	const onSuccess = (result: ISuccessResult) => {
 		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
-		window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
+		//window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
+		console.log("result.nullifier_hash", result.nullifier_hash)
 	};
 
 	const handleProof = async (result: ISuccessResult) => {
-		console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
+		//console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
 		const reqBody = {
 			merkle_root: result.merkle_root,
 			nullifier_hash: result.nullifier_hash,
@@ -25,7 +44,7 @@ export default function Home() {
 			action: process.env.NEXT_PUBLIC_WLD_ACTION,
 			signal: "",
 		};
-		console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody)) // Log the proof being sent to our backend for visibility
+		//console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody)) // Log the proof being sent to our backend for visibility
 		const res: Response = await fetch("/api/verify", {
 			method: "POST",
 			headers: {
@@ -50,7 +69,7 @@ export default function Home() {
 					app_id={process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`}
 					onSuccess={onSuccess}
 					handleVerify={handleProof}
-					verification_level={VerificationLevel.Orb} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
+					verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
 				>
 					{({ open }) =>
 						<button className="border border-black rounded-md" onClick={open}>
@@ -58,6 +77,11 @@ export default function Home() {
 						</button>
 					}
 				</IDKitWidget>
+			</div>
+			<div>
+				{users.map(user => (
+					<div key={user.id}>{user.name}</div>
+				))}
 			</div>
 		</div>
 	);
