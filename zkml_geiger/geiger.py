@@ -5,8 +5,7 @@ import time
 from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
-from giza_actions import task, Action
-from giza_actions import GizaAgent
+from giza_actions import task, Action, GizaAgent
 from pyflipper.pyflipper import PyFlipper
 
 load_dotenv()
@@ -91,7 +90,7 @@ def process_geiger_data():
     return return_tensor
 
 @Action
-async def main(address):
+async def payment(address):
     try:
         address = Web3.to_checksum_address(address)
     except Exception as e:
@@ -115,4 +114,46 @@ async def main(address):
     version_id = 1
     agent = GizaAgent(model_id, version_id, account)
     
+    agent.infer(input_feed={"tensor_input": tensor}, job_size="S")
+    
+    proof, proof_path = agent.get_model_data()
+    verified = await agent.verify(proof_path)
+    
+    inference_check = False
+    
+    if verified:
+        print("Verified!")
+        print("Inference: ", agent.inference)
+        
+        if any(x >= 0 for x in agent.inference):
+            inference_check = True
+            print("Inference check passed")
+        else:
+            pass
+        if inference_check:
+            print("This scan seems to come from a miner. Signing proof...")
+            signed_proof, is_none, proof_message, signable_proof_message = agent.sign_proof(account, proof, proof_path)
+            rpc = os.getenv("ALCHEMY_URL")
+            
+            contract_address = Web3.to_checksum_address(os.getenv("CONTRACT_ADDRESS"))
+            print("Contract address: ", contract_address)
+            receipt = await agent.transmit(account=account, contract_address=contract_address, chain_id=11155111, abi_path="contracts/abi/MotemaPoolAbi.json",
+            function_name="claim",
+            params=[address, signed_proof],
+            value=None,
+            signed_proof=signed_proof,
+            is_none=is_none,
+            proofMessage=proof_message,
+            signedProofMessage=signable_proof_message,
+            rpc_url=rpc,
+            unsafe=False
+        )
+            print("Receipt: ", receipt)
+            return receipt
+        else:
+            print("It doesn't seem like this person has been mining. No action taken.")
+            return None
+    else:
+        print("Verification failed")
+        return None
     
