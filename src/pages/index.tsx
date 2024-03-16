@@ -35,33 +35,26 @@ export default function Home() {
 
 		if (ensRegex.test(name)) {
 			const address = await client.getAddressRecord({ name })
-			console.log("address",address)
-			return address
-		} else if (addressRegex.test(name)) {
-			// It's an Ethereum address
-			return name;
-		} else {
-			// It's neither
-			return 'Wrong syntaxis';
-		}
+			console.log("address",address?.value)
+			return address?.value
+		} else if (addressRegex.test(name)) { return name; } else {	return 'Wrong syntaxis'; }
 	};
 
-	const address2 = checkAddressOrENS("0xFe8E4f337b54c2afD370aE26675602c00BC8d702")
-	console.log(address2)
-
 	const addMiner = async (address: any, nullifier_hash: any) => {
+		const address2 = await checkAddressOrENS(address);
+		console.log("Address2:", address2);
 		const response = await fetch('/api/addMiner', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ address, nullifier_hash }),
-		})
+			body: JSON.stringify({ address: address2, nullifier_hash }),
+		});
 
-		if (!response.ok) { throw new Error('Something went wrong.') }
+		if (!response.ok) { throw new Error('Something went wrong.'); }
 
-		const data = await response.json()
-		setMiners(prevMiners => [...prevMiners, data])
+		const data = await response.json();
+		setMiners(prevMiners => [...prevMiners, data]);
 	}
 
 	const onSuccess = (result: ISuccessResult) => { addMiner(address, result.nullifier_hash); };
