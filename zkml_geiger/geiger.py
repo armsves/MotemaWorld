@@ -7,7 +7,8 @@ import asyncio
 from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
-from giza_actions import task, Action, GizaAgent
+from giza_actions import task, action
+from giza_actions.agent import GizaAgent
 from pyflipper.pyflipper import PyFlipper
 
 load_dotenv()
@@ -91,7 +92,7 @@ def process_geiger_data():
     
     return return_tensor
 
-@Action
+@action
 async def payment(address):
     try:
         address = Web3.to_checksum_address(address)
@@ -141,7 +142,7 @@ async def payment(address):
             print("Contract address: ", contract_address)
             receipt = await agent.transmit(account=account, contract_address=contract_address, chain_id=11155111, abi_path="contracts/abi/MotemaPoolAbi.json",
             function_name="claim",
-            params=[address, signed_proof],
+            params=[address],
             value=None,
             signed_proof=signed_proof,
             is_none=is_none,
