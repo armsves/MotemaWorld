@@ -7,7 +7,8 @@ import asyncio
 from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
-from giza_actions import task, action
+from giza_actions.action import Action, action
+from giza_actions.task import task
 from giza_actions.agent import GizaAgent
 from pyflipper.pyflipper import PyFlipper
 
@@ -160,13 +161,11 @@ async def payment(address):
         print("Verification failed")
         return None
     
-async def main(address):
-    await payment(address)
-    
-if __name__ == "__main__":
+if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Please provide an address as a command-line argument.")
         sys.exit(1)
 
     address = sys.argv[1]
-    asyncio.run(main(address))
+    action_deploy = Action(entrypoint=payment(address), name="miner-payment")
+    action_deploy.serve(name="miner-payment")
