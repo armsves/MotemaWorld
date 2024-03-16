@@ -12,6 +12,7 @@ export default function Home() {
 	const [miners, setMiners] = useState<Miner[]>([])
 	const [address, setAddress] = useState<string>("");
 	const [message, setMessage] = useState<string>("");
+	const [wallet, setWallet] = useState<string>("");
 
 	if (!process.env.NEXT_PUBLIC_WLD_APP_ID) { throw new Error("app_id is not set in environment variables!"); }
 	if (!process.env.NEXT_PUBLIC_WLD_ACTION) { throw new Error("app_id is not set in environment variables!"); }
@@ -35,14 +36,14 @@ export default function Home() {
 
 		if (ensRegex.test(name)) {
 			const address = await client.getAddressRecord({ name })
-			console.log("address",address?.value)
+			//console.log("address",address?.value)
 			return address?.value
 		} else if (addressRegex.test(name)) { return name; } else {	return 'Wrong syntaxis'; }
 	};
 
 	const addMiner = async (address: any, nullifier_hash: any) => {
 		const address2 = await checkAddressOrENS(address);
-		console.log("Address2:", address2);
+		//console.log("Address2:", address2);
 		const response = await fetch('/api/addMiner', {
 			method: 'POST',
 			headers: {
@@ -73,16 +74,17 @@ export default function Home() {
 		const data = await response.json()
 		if (data.message) {
 			setMessage(data.message);
-			console.log("Message is:", message)
+			console.log("Message is:" + message)
 		} else {
-			console.log("Wallet address:", data)
+			setWallet(data)
+			console.log("Wallet address:" + wallet)
 		}
 	}
 
 	const onSuccessVerify = async (result: ISuccessResult) => { verifyMiner(result.nullifier_hash); };
 
 	const handleProof = async (result: ISuccessResult) => {
-		console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
+		//console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
 		const reqBody = {
 			merkle_root: result.merkle_root,
 			nullifier_hash: result.nullifier_hash,
@@ -91,7 +93,7 @@ export default function Home() {
 			action: process.env.NEXT_PUBLIC_WLD_ACTION,
 			signal: "",
 		};
-		console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody)) // Log the proof being sent to our backend for visibility
+		//console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody)) // Log the proof being sent to our backend for visibility
 		const res: Response = await fetch("/api/verify", {
 			method: "POST",
 			headers: {
@@ -101,7 +103,8 @@ export default function Home() {
 		})
 		const data: VerifyReply = await res.json()
 		if (res.status == 200) {
-			console.log("Successful response from backend:\n", data); // Log the response from our backend for visibility
+			console.log("It's all good man")
+			//console.log("Successful response from backend:\n", data); // Log the response from our backend for visibility
 		} else {
 			throw new Error(`Error code ${res.status} (${data.code}): ${data.detail}` ?? "Unknown error."); // Throw an error if verification fails
 		}
