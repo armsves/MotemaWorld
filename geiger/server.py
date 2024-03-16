@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import asyncio
-from geiger import payment
-
+from geiger import claim_payment
 
 app = Flask(__name__)
 
@@ -11,7 +10,7 @@ def index():
         address = request.form.get('address')
         if address:
             try:
-                receipt = asyncio.run(payment(address))
+                receipt = asyncio.run(claim_payment(address))
                 if receipt is None:
                     return jsonify({"error": "No receipt returned"}), 500
                 transaction_data = {

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { createEnsPublicClient } from '@ensdomains/ensjs'
+import axios from 'axios'
 
 export default function Home() {
     const [miners, setMiners] = useState<Miner[]>([])
@@ -61,7 +62,23 @@ export default function Home() {
         }
     }
 
-    const onSuccessVerify = async (result: ISuccessResult) => { verifyMiner(result.nullifier_hash); };
+    const onSuccessVerify = async (result: ISuccessResult) => { 
+        verifyMiner(result.nullifier_hash); 
+        try {
+            const response = await axios.post('http://your-server-url:8080/', {
+                address: minerAddress
+            });
+    
+            if (response.status === 200) {
+                const transactionData = response.data;
+                console.log('Transaction data:', transactionData);
+            } else {
+                console.error('Error from server:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error sending request to server:', error);
+        }
+    };
 
     const handleProof = async (result: ISuccessResult) => {
         //console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility

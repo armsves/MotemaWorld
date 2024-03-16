@@ -4,6 +4,7 @@ import numpy as np
 from web3 import Web3
 from eth_account import Account
 from dotenv import load_dotenv
+from pyflipper.pyflipper import PyFlipper
 
 load_dotenv()
 
@@ -11,6 +12,34 @@ def read_geiger_data():
     print("Reading Geiger Counter data...")
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(data_dir, exist_ok=True)
+    
+    try:
+        flipper = PyFlipper(com="/dev/cu.usbmodemflip_Anen1x1")
+    except Exception as e:
+        print(f"No Flipper device found: {e}")
+        pass
+
+    files_and_dirs = flipper.storage.list(path="/ext")
+    print(f"Files and directories found on Flipper: {files_and_dirs}")
+
+    for file_dict in files_and_dirs.get('files', []):
+        file_name = file_dict['name']
+        file_path = f"/ext/{file_name}"
+        print(f"Reading {file_path} from Flipper...")
+        try:
+            file_data = flipper.storage.read(file=file_path)
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+            continue
+
+        print(f"Read {file_name} from Flipper. Saving to {data_dir}...")
+        filename = os.path.join(data_dir, file_name)
+        try:
+            with open(filename, 'w') as f:
+                f.write(file_data)
+                print(f"Saved {file_name} to {filename}")
+        except Exception as e:
+            print(f"Error saving {file_name} to {filename}: {e}")
 
     csv_files = [f for f in os.listdir(data_dir) if f.endswith('.csv')]
     if not csv_files:
