@@ -107,8 +107,8 @@ export default function Home() {
 						{({ open }) =>
 							<>
 								<input className="border border-black rounded-md p-1 m-1" type="text" size={45} onChange={(e) => setAddress(e.target.value)} placeholder="Enter your ENS or wallet address" />
-								<button className="border border-black rounded-md" onClick={open}>
-									<div className="mx-3 my-1">Create Miner registry with World ID</div>
+								<button onClick={open} style={{ display: 'inline-block', margin: '10px', padding: '10px', backgroundColor: '#0070f3', color: '#fff', borderRadius: '5px', textDecoration: 'none' }}>
+									<div>Create Miner registry with World ID</div>
 								</button>
 							</>
 						}
