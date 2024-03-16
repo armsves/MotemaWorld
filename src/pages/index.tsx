@@ -1,88 +1,12 @@
-import { VerificationLevel, IDKitWidget } from "@worldcoin/idkit";
-import type { ISuccessResult } from "@worldcoin/idkit";
-import type { VerifyReply } from "./api/verify";
-import { useEffect, useState } from 'react'
-
+import Link from 'next/link';
 
 export default function Home() {
-	if (!process.env.NEXT_PUBLIC_WLD_APP_ID) {
-		throw new Error("app_id is not set in environment variables!");
-	}
-	if (!process.env.NEXT_PUBLIC_WLD_ACTION) {
-		throw new Error("app_id is not set in environment variables!");
-	}
 
-	type User = {
-		id: number;
-		name: string;
-		// include other properties as needed
-	}
-
-	const [users, setUsers] = useState<User[]>([])
-
-	/*
-	useEffect(() => {
-		fetch('/api/users')
-			.then(response => response.json())
-			.then(data => setUsers(data))
-	}, [])
-*/
-
-	const onSuccess = (result: ISuccessResult) => {
-		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
-		//window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
-		console.log("result.nullifier_hash", result.nullifier_hash)
-	};
-
-	const handleProof = async (result: ISuccessResult) => {
-		//console.log("Proof received from IDKit:\n", JSON.stringify(result)); // Log the proof from IDKit to the console for visibility
-		const reqBody = {
-			merkle_root: result.merkle_root,
-			nullifier_hash: result.nullifier_hash,
-			proof: result.proof,
-			verification_level: result.verification_level,
-			action: process.env.NEXT_PUBLIC_WLD_ACTION,
-			signal: "",
-		};
-		//console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody)) // Log the proof being sent to our backend for visibility
-		const res: Response = await fetch("/api/verify", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(reqBody),
-		})
-		const data: VerifyReply = await res.json()
-		if (res.status == 200) {
-			console.log("Successful response from backend:\n", data); // Log the response from our backend for visibility
-		} else {
-			throw new Error(`Error code ${res.status} (${data.code}): ${data.detail}` ?? "Unknown error."); // Throw an error if verification fails
-		}
-	};
-
-	return (
-		<div>
-			<div className="flex flex-col items-center justify-center align-middle h-screen">
-				<p className="text-2xl mb-5">World ID Cloud Template</p>
-				<IDKitWidget
-					action={process.env.NEXT_PUBLIC_WLD_ACTION!}
-					app_id={process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`}
-					onSuccess={onSuccess}
-					handleVerify={handleProof}
-					verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
-				>
-					{({ open }) =>
-						<button className="border border-black rounded-md" onClick={open}>
-							<div className="mx-3 my-1">Verify with World ID</div>
-						</button>
-					}
-				</IDKitWidget>
-			</div>
-			<div>
-				{users.map(user => (
-					<div key={user.id}>{user.name}</div>
-				))}
-			</div>
-		</div>
-	);
+  return (
+    <div>
+      <Link href="/" style={{ display: 'inline-block', margin: '10px', padding: '10px', backgroundColor: '#0070f3', color: '#fff', borderRadius: '5px', textDecoration: 'none' }}>Home</Link>
+      <Link href="/create-miner" style={{ display: 'inline-block', margin: '10px', padding: '10px', backgroundColor: '#0070f3', color: '#fff', borderRadius: '5px', textDecoration: 'none' }}>Create Miner</Link>
+      <Link href="/verify-miner" style={{ display: 'inline-block', margin: '10px', padding: '10px', backgroundColor: '#0070f3', color: '#fff', borderRadius: '5px', textDecoration: 'none' }}>Verify Miner</Link>
+    </div>
+  );
 }

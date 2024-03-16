@@ -1,15 +1,16 @@
-const { Pool } = require('pg')
+import pg from 'pg';
 
-const pool = new Pool({
-  user: 'dbuser',
-  host: 'database.server.com',
-  database: 'mydb',
-  password: 'secretpassword',
-  port: 5432,
-})
+const { Pool } = pg;
 
-module.exports = {
-  query: (text, params, callback) => {
-    return pool.query(text, params, callback)
-  },
+let pool;
+try {
+  pool = new Pool({connectionString: process.env.POSTGRES_URL ,ssl: { rejectUnauthorized: false }});
+} catch (error) {
+  console.error('Error creating pool', error);
 }
+
+export default {
+  query: (text, params, callback) => {
+    return pool.query(text, params, callback);
+  },
+};
