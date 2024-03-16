@@ -3,7 +3,6 @@ import type { ISuccessResult } from "@worldcoin/idkit";
 import type { VerifyReply } from "./api/verify";
 import { useEffect, useState } from 'react'
 
-
 export default function Home() {
 	const [miners, setMiners] = useState<Miner[]>([])
 	const [address, setAddress] = useState<string>("");
@@ -20,7 +19,6 @@ export default function Home() {
 		create_time: Date;
 		address: string;
 		nullifier_hash: string;
-		// include other properties as needed
 	}
 
 	const addMiner = async (create_time: any, address: any, nullifier_hash: any) => {
@@ -40,11 +38,13 @@ export default function Home() {
 		setMiners(prevMiners => [...prevMiners, data])
 	}
 
+	/*
 	useEffect(() => {
 		fetch('/api/miners')
 			.then(response => response.json())
 			.then(data => setMiners(data))
 	}, [])
+	*/
 
 	const onSuccess = (result: ISuccessResult) => {
 		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
@@ -96,16 +96,11 @@ export default function Home() {
 						<>
 							<input type="text" onChange={(e) => setAddress(e.target.value)} placeholder="Enter your address" />
 							<button className="border border-black rounded-md" onClick={open}>
-								<div className="mx-3 my-1">Verify with World ID</div>
+								<div className="mx-3 my-1">Create Miner registry with World ID</div>
 							</button>
 						</>
 					}
 				</IDKitWidget>
-			</div>
-			<div>
-				{miners.map(miner => (
-					<div key={miner.id}>{miner.address}</div>
-				))}
 			</div>
 		</div>
 	);
