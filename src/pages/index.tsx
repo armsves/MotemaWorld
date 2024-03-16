@@ -1,6 +1,12 @@
 import { VerificationLevel, IDKitWidget, ISuccessResult } from "@worldcoin/idkit";
 import type { VerifyReply } from "./api/verify";
 import { useState } from 'react'
+// Import viem transport, viem chain, and ENSjs
+import { http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { createEnsPublicClient } from '@ensdomains/ensjs'
+import { ethers } from 'ethers';
+
 
 export default function Home() {
 	const [miners, setMiners] = useState<Miner[]>([])
@@ -16,6 +22,32 @@ export default function Home() {
 		address: string;
 		nullifier_hash: string;
 	}
+
+	// Create the client
+	const client = createEnsPublicClient({
+		chain: mainnet,
+		transport: http(),
+	})
+
+	const checkAddressOrENS = async (name: string) => {
+		const ensRegex = /^([a-z0-9]+\.)+(eth|xyz)$/;
+		const addressRegex = /^0x[a-fA-F0-9]{40}$/;
+
+		if (ensRegex.test(name)) {
+			const address = await client.getAddressRecord({ name })
+			console.log("address",address)
+			return address
+		} else if (addressRegex.test(name)) {
+			// It's an Ethereum address
+			return name;
+		} else {
+			// It's neither
+			return 'Wrong syntaxis';
+		}
+	};
+
+	const address2 = checkAddressOrENS("0xFe8E4f337b54c2afD370aE26675602c00BC8d702")
+	console.log(address2)
 
 	const addMiner = async (address: any, nullifier_hash: any) => {
 		const response = await fetch('/api/addMiner', {
@@ -50,7 +82,7 @@ export default function Home() {
 			setMessage(data.message);
 			console.log("Message is:", message)
 		} else {
-			console.log("Wallet address:",data)
+			console.log("Wallet address:", data)
 		}
 	}
 
@@ -84,27 +116,27 @@ export default function Home() {
 
 	return (
 		<div>
-
-
-
-			<div className="flex flex-col items-center justify-center align-middle">
-				<p className="text-2xl mb-5">Miner verification page</p>
+			<div className="flex flex-col items-center justify-center align-middle ">
+				<p className="text-2xl mb-5">Miner Registratrion Page</p>
 				<IDKitWidget
 					action={process.env.NEXT_PUBLIC_WLD_ACTION!}
 					app_id={process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`}
-					onSuccess={onSuccessVerify}
+					onSuccess={onSuccess}
 					handleVerify={handleProof}
 					verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
 				>
 					{({ open }) =>
 						<>
+							<input type="text" size={50} onChange={(e) => setAddress(e.target.value)} placeholder="Enter your ENS or wallet address" />
 							<button className="border border-black rounded-md" onClick={open}>
-								<div className="mx-3 my-1">Verify Miner</div>
+								<div className="mx-3 my-1">Create Miner registry with World ID</div>
 							</button>
 						</>
 					}
 				</IDKitWidget>
 			</div>
+
+
 
 		</div>
 	);
