@@ -112,7 +112,7 @@ async def payment(address):
     print("Account address: ", account.address)
     
     # Create GizaAgent instance
-    model_id = 1
+    model_id = 440
     version_id = 1
     agent = GizaAgent(model_id, version_id, account)
     
