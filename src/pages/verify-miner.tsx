@@ -60,13 +60,14 @@ export default function Home() {
             setWallet(data)
             console.log("Wallet address:" + data)
         }
+        return data;
     }
 
     const onSuccessVerify = async (result: ISuccessResult) => { 
-        verifyMiner(result.nullifier_hash); 
+        let data = verifyMiner(result.nullifier_hash); 
         try {
-            const response = await axios.post('http://your-server-url:8080/', {
-                address: minerAddress
+            const response = await axios.post('http://127.0.0.1:8080', {
+                address: data
             });
     
             if (response.status === 200) {
