@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 import time
+import sys
+import asyncio
 from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
@@ -157,3 +159,13 @@ async def payment(address):
         print("Verification failed")
         return None
     
+async def main(address):
+    await payment(address)
+    
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Please provide an address as a command-line argument.")
+        sys.exit(1)
+
+    address = sys.argv[1]
+    asyncio.run(main(address))
