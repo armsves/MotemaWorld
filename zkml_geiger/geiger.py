@@ -1,6 +1,9 @@
 import os
 import pandas as pd
+import numpy as np
+import time
 from dotenv import load_dotenv
+from web3 import Web3
 from eth_account import Account
 from giza_actions import task, Action
 from pyflipper.pyflipper import PyFlipper
@@ -64,7 +67,8 @@ def read_geiger():
     else:
         print("No CSV files found")
         csv_data = None
-        
+   
+@task     
 def process_geiger_data():
     print("Processing Geiger Counter data...")
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -78,3 +82,21 @@ def process_geiger_data():
     df = pd.read_csv(csv_path)
     df['cps'] = df['cps'].astype(float)
     cps_values = df['cps'].values
+    
+    top_3_values = np.sort(cps_values)[-3:][::-1]
+    
+    return_tensor = np.array(top_3_values, dtype=np.float64)
+    
+    return return_tensor
+
+@Action
+async def main(address):
+    try:
+        address = Web3.to_checksum_address(address)
+    except Exception as e:
+        print(f"Invalid address: {address}")
+        return
+    
+    print("Starting Geiger Counter data collection for address:", address)
+    time.sleep(20)
+    
