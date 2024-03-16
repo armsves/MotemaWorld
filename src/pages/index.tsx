@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react'
 
 
 export default function Home() {
+	const [miners, setMiners] = useState<Miner[]>([])
+	const [address, setAddress] = useState<string>("");
+
 	if (!process.env.NEXT_PUBLIC_WLD_APP_ID) {
 		throw new Error("app_id is not set in environment variables!");
 	}
@@ -20,7 +23,6 @@ export default function Home() {
 		// include other properties as needed
 	}
 
-	
 	const addMiner = async (create_time: any, address: any, nullifier_hash: any) => {
 		const response = await fetch('/api/addMiner', {
 			method: 'POST',
@@ -38,8 +40,6 @@ export default function Home() {
 		setMiners(prevMiners => [...prevMiners, data])
 	}
 
-	const [miners, setMiners] = useState<Miner[]>([])
-
 	useEffect(() => {
 		fetch('/api/miners')
 			.then(response => response.json())
@@ -52,10 +52,7 @@ export default function Home() {
 		console.log("result.nullifier_hash", result.nullifier_hash)
 		const currentTime = new Date().toLocaleString();
 		console.log("Current time:", currentTime);
-		addMiner(currentTime, "0xN4d4", result.nullifier_hash);
-		//
-
-		//
+		addMiner(currentTime, address, result.nullifier_hash);
 	};
 
 	const handleProof = async (result: ISuccessResult) => {
@@ -96,9 +93,12 @@ export default function Home() {
 					verification_level={VerificationLevel.Device} // Change this to VerificationLevel.Device to accept Orb- and Device-verified users
 				>
 					{({ open }) =>
-						<button className="border border-black rounded-md" onClick={open}>
-							<div className="mx-3 my-1">Verify with World ID</div>
-						</button>
+						<>
+							<input type="text" onChange={(e) => setAddress(e.target.value)} placeholder="Enter your address" />
+							<button className="border border-black rounded-md" onClick={open}>
+								<div className="mx-3 my-1">Verify with World ID</div>
+							</button>
+						</>
 					}
 				</IDKitWidget>
 			</div>
