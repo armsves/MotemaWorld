@@ -120,7 +120,7 @@ export default function Home() {
 				>
 					{({ open }) =>
 						<>
-							<input type="text" size={50} onChange={(e) => setAddress(e.target.value)} placeholder="Enter your ENS or wallet address" />
+							<input type="text" size={45} onChange={(e) => setAddress(e.target.value)} placeholder="Enter your ENS or wallet address" />
 							<button className="border border-black rounded-md" onClick={open}>
 								<div className="mx-3 my-1">Create Miner registry with World ID</div>
 							</button>
