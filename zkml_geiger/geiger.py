@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from web3 import Web3
 from eth_account import Account
 from giza_actions import task, Action
+from giza_actions import GizaAgent
 from pyflipper.pyflipper import PyFlipper
 
 load_dotenv()
@@ -83,9 +84,9 @@ def process_geiger_data():
     df['cps'] = df['cps'].astype(float)
     cps_values = df['cps'].values
     
-    top_3_values = np.sort(cps_values)[-3:][::-1]
+    top_30_values = np.sort(cps_values)[-30:][::-1]
     
-    return_tensor = np.array(top_3_values, dtype=np.float64)
+    return_tensor = np.array(top_30_values, dtype=np.float64)
     
     return return_tensor
 
@@ -99,4 +100,19 @@ async def main(address):
     
     print("Starting Geiger Counter data collection for address:", address)
     time.sleep(20)
+    
+    read_geiger()
+    tensor = process_geiger_data()
+    print(f"Tensor: {tensor}")
+    
+    Account.enable_unaudited_hdwallet_features()
+    mnemonic = os.getenv('MNEMONIC')
+    account = import_account(mnemonic)
+    print("Account address: ", account.address)
+    
+    # Create GizaAgent instance
+    model_id = 1
+    version_id = 1
+    agent = GizaAgent(model_id, version_id, account)
+    
     
