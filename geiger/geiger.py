@@ -1,7 +1,8 @@
 import os
+import time
 import pandas as pd
 import numpy as np
-from web3 import Web3
+from web3 import Web3, middleware
 from eth_account import Account
 from dotenv import load_dotenv
 from pyflipper.pyflipper import PyFlipper
@@ -10,6 +11,7 @@ load_dotenv()
 
 def read_geiger_data():
     print("Reading Geiger Counter data...")
+    time.sleep(20)
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(data_dir, exist_ok=True)
     
@@ -87,6 +89,8 @@ def claim_payment(address):
 
         rpc = os.getenv("ALCHEMY_URL")
         web3 = Web3(Web3.HTTPProvider(rpc))
+        
+        # web3.middleware_onion.add(middleware.make_stub_web3_provider(web3))
 
         contract_address = Web3.to_checksum_address(os.getenv("CONTRACT_ADDRESS"))
         print("Contract address: ", contract_address)
@@ -96,18 +100,24 @@ def claim_payment(address):
             abi = f.read()
 
         contract = web3.eth.contract(address=contract_address, abi=abi)
-
-        nonce = web3.eth.get_transaction_count(account.address)
+        estimated_gas = contract.functions.claim(address).estimate_gas({
+            'from': account.address,
+            'to': contract_address,
+        })
         tx = contract.functions.claim(address).build_transaction({
             'from': account.address,
-            'nonce': nonce,
-            'gas': 1000000,
+            'nonce': web3.eth.get_transaction_count(account.address) + 2,
+            'gas': estimated_gas,
             'gasPrice': web3.to_wei('50', 'gwei'),
         })
 
         signed_tx = account.sign_transaction(tx)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         print(f"Transaction hash: {tx_hash.hex()}")
+
+        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+
+        return receipt
     else:
         print("It doesn't seem like this person has been mining. No action taken.")
 

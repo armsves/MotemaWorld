@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import asyncio
 from geiger import claim_payment
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -10,7 +12,7 @@ def index():
         address = request.form.get('address')
         if address:
             try:
-                receipt = asyncio.run(claim_payment(address))
+                receipt = claim_payment(address)
                 if receipt is None:
                     return jsonify({"error": "No receipt returned"}), 500
                 transaction_data = {
