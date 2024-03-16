@@ -20,6 +20,24 @@ export default function Home() {
 		// include other properties as needed
 	}
 
+	
+	const addMiner = async (create_time: any, address: any, nullifier_hash: any) => {
+		const response = await fetch('/api/addMiner', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ create_time, address, nullifier_hash }),
+		})
+
+		if (!response.ok) {
+			throw new Error('Something went wrong.')
+		}
+
+		const data = await response.json()
+		setMiners(prevMiners => [...prevMiners, data])
+	}
+
 	const [miners, setMiners] = useState<Miner[]>([])
 
 	useEffect(() => {
@@ -32,6 +50,12 @@ export default function Home() {
 		// This is where you should perform frontend actions once a user has been verified, such as redirecting to a new page
 		//window.alert("Successfully verified with World ID! Your nullifier hash is: " + result.nullifier_hash);
 		console.log("result.nullifier_hash", result.nullifier_hash)
+		const currentTime = new Date().toLocaleString();
+		console.log("Current time:", currentTime);
+		addMiner(currentTime, "0xN4d4", result.nullifier_hash);
+		//
+
+		//
 	};
 
 	const handleProof = async (result: ISuccessResult) => {
