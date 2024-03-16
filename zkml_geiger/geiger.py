@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from dotenv import load_dotenv
 from eth_account import Account
 from giza_actions import task, Action
@@ -66,4 +67,14 @@ def read_geiger():
         
 def process_geiger_data():
     print("Processing Geiger Counter data...")
-    pass
+    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    csv_files =  [f for f in os.listdir(data_dir) if f.endswith('.csv')]
+    if not csv_files:
+        print("No CSV files found")
+        return
+    
+    latest_csv = max(csv_files, key=lambda x: os.path.getmtime(os.path.join(data_dir, x)))
+    csv_path = os.path.join(data_dir, latest_csv)
+    df = pd.read_csv(csv_path)
+    df['cps'] = df['cps'].astype(float)
+    cps_values = df['cps'].values
