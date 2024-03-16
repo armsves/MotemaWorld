@@ -114,13 +114,16 @@ async def payment(address):
     print("Account address: ", account.address)
     
     # Create GizaAgent instance
-    model_id = 440
+    id = 440
     version_id = 1
-    agent = GizaAgent(model_id, version_id, account)
+    agent = GizaAgent(id=id, version=version_id)
     
     agent.infer(input_feed={"tensor_input": tensor}, job_size="S")
-    
-    proof, proof_path = agent.get_model_data()
+    # Bug: the endpoint for fetching the proof changed
+    # proof, proof_path = agent.get_model_data()
+    with open("zk.proof", "rb") as f:
+        proof = f.read()
+    proof_path = "zk.proof"
     verified = await agent.verify(proof_path)
     
     inference_check = False
@@ -161,11 +164,13 @@ async def payment(address):
         print("Verification failed")
         return None
     
-if __name__ == '__main__':
+async def main(address):
+    await payment(address)
+    
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Please provide an address as a command-line argument.")
         sys.exit(1)
 
     address = sys.argv[1]
-    action_deploy = Action(entrypoint=payment(address), name="miner-payment")
-    action_deploy.serve(name="miner-payment")
+    asyncio.run(main(address))
