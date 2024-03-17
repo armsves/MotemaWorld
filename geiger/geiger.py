@@ -102,12 +102,14 @@ def claim_payment(address):
         contract = web3.eth.contract(address=contract_address, abi=abi)
         estimated_gas = contract.functions.claim(address).estimate_gas({
             'from': account.address,
-            'to': contract_address,
         })
+        gas_with_buffer = estimated_gas + (estimated_gas * 3)
+
+        print(f"Estimated gas: {estimated_gas}")
         tx = contract.functions.claim(address).build_transaction({
             'from': account.address,
-            'nonce': web3.eth.get_transaction_count(account.address) + 2,
-            'gas': estimated_gas,
+            'nonce': 543789547389,
+            'gas': 7000000,
             'gasPrice': web3.to_wei('50', 'gwei'),
         })
 
@@ -115,9 +117,7 @@ def claim_payment(address):
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         print(f"Transaction hash: {tx_hash.hex()}")
 
-        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-
-        return receipt
+        return tx_hash
     else:
         print("It doesn't seem like this person has been mining. No action taken.")
 
