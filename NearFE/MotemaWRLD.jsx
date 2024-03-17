@@ -97,13 +97,13 @@ function Modal({ onClose, show, children }) {
                     padding: '20px',
                     color: '#0047AB',
                     backgroundColor: 'rgba(224,224,224)',
-                    borderRadius: '0.45rem',
-                    border: '3px solid #66CC99',
+                    //borderRadius: '0.45rem',
+                    //border: '3px solid #66CC99',
                     alignItems: 'center',
                 }}
                 onClick={e => { e.stopPropagation(); }}
             >
-                <div class="rounded-lg bg-lime-300 py-4 px-4 border-2">
+                <div class="rounded-lg bg-lime-300 py-4 px-4 border-0">
                     {children}
                 </div>
             </div>
@@ -154,11 +154,10 @@ if (!state.theme) {
         theme: styled.div`
     font-family: Manrope, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
     font-weight: bold;
-    background-color: #E0E0E0;
+    background-color: #FFFFFF;
     color: #0047AB;
-    padding: 10px;
+    padding: 5px;
     border-radius: 0.45rem;
-    border: 3px solid #66CC99;
   `,
     });
 }
@@ -180,10 +179,17 @@ const RightSide = styled.div`
   gap: 10px;
 `;
 
+const Footer = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+`;
+
+
 return (
     <Theme>
         <div class="main-container">
-            <Navbar><img src="https://i.ibb.co/VD1Gsd7/motema-banner.png" alt="Motema Banner"></img></Navbar>
+            <Navbar><img src="https://i.ibb.co/1T3Jd3m/banner.jpg" alt="Motema Banner" /></Navbar>
             <div class="header">
                 <Navbar>
                     <LeftSide>
@@ -237,5 +243,8 @@ return (
                 )}
             </div>
         </div>
+        <Footer>
+            <a href="https://near.social/mob.near/widget/MyPage?accountId=devgovgigs.near"><img src="https://i.ibb.co/BcD8HT2/powered-by-DH-dark.png" alt="MotemaWRLD Banner" target="_blank" /></a>
+        </Footer>
     </Theme>
 );
