@@ -64,33 +64,46 @@ export default function Home() {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center">
+        <div className="flex flex-col justify-center items-center" style={{
+            fontFamily: 'Manrope, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+            fontWeight: 'bold',
+            backgroundColor: '#FFFFFF',
+            color: '#0047AB',
+            padding: '5px',
+            borderRadius: '0.45rem',
+        }}>
+            <Image
+                src="/banner.jpg"
+                height={87}
+                width={630}
+                alt="MotemaWRLD Banner"
+            />
             <div className="h1">
                 Welcome to MotemaWRLD Donations Page!
             </div>
             {address && (
                 <>
+
                     <LeftSide>
-                    {`${address.slice(0, 2)}...${address.slice(-4)}`}
+                        {`${address.slice(0, 2)}...${address.slice(-4)}`}
                     </LeftSide>
                     <div>
-                        <p>You just purchased { } which contains { } grams of cobalt!</p>
+                        <p>You just purchased iPhone 15 which contains 15 grams of cobalt!</p>
                         <p>Do you want to help reduce the impact of cobalt mining in Democratic Republic of Congo? Donate to the cause!</p>
                         <p>The money will be used to support the local communities and help them to find alternative sources of income.</p>
-                        <p>You will contribute with 0.1 ETH</p>
-                    </div>
-                    <div className="h2 text-center">
-                        Your address:{" "}
-                        <span className="font-bold text-sm">{address}</span>
+                        <p>You will contribute with 0.1 CELO</p>
                     </div>
                     {tx && (
-                        <p className="font-bold mt-4">
-                            Tx Completed: {(tx.transactionHash as string).substring(0, 6)}
-                            ...
-                            {(tx.transactionHash as string).substring(
-                                tx.transactionHash.length - 6,
-                                tx.transactionHash.length
-                            )}
+                        <p className="mt-4">
+                            Tx Completed:
+                            <a href={`https://explorer.celo.org/alfajores/tx/${tx.transactionHash}`} target="_blank">
+                                {(tx.transactionHash as string).substring(0, 6)}
+                                ...
+                                {(tx.transactionHash as string).substring(
+                                    tx.transactionHash.length - 6,
+                                    tx.transactionHash.length
+                                )}
+                            </a>
                         </p>
                     )}
                     <div className="p-4 mt-7">
