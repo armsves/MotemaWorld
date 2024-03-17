@@ -1,16 +1,47 @@
 import os
+import time
 import pandas as pd
 import numpy as np
-from web3 import Web3
+from web3 import Web3, middleware
 from eth_account import Account
 from dotenv import load_dotenv
+from pyflipper.pyflipper import PyFlipper
 
 load_dotenv()
 
 def read_geiger_data():
     print("Reading Geiger Counter data...")
+    time.sleep(20)
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(data_dir, exist_ok=True)
+    
+    try:
+        flipper = PyFlipper(com="/dev/cu.usbmodemflip_Anen1x1")
+    except Exception as e:
+        print(f"No Flipper device found: {e}")
+        pass
+
+    files_and_dirs = flipper.storage.list(path="/ext")
+    print(f"Files and directories found on Flipper: {files_and_dirs}")
+
+    for file_dict in files_and_dirs.get('files', []):
+        file_name = file_dict['name']
+        file_path = f"/ext/{file_name}"
+        print(f"Reading {file_path} from Flipper...")
+        try:
+            file_data = flipper.storage.read(file=file_path)
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+            continue
+
+        print(f"Read {file_name} from Flipper. Saving to {data_dir}...")
+        filename = os.path.join(data_dir, file_name)
+        try:
+            with open(filename, 'w') as f:
+                f.write(file_data)
+                print(f"Saved {file_name} to {filename}")
+        except Exception as e:
+            print(f"Error saving {file_name} to {filename}: {e}")
 
     csv_files = [f for f in os.listdir(data_dir) if f.endswith('.csv')]
     if not csv_files:
@@ -58,6 +89,8 @@ def claim_payment(address):
 
         rpc = os.getenv("ALCHEMY_URL")
         web3 = Web3(Web3.HTTPProvider(rpc))
+        
+        # web3.middleware_onion.add(middleware.make_stub_web3_provider(web3))
 
         contract_address = Web3.to_checksum_address(os.getenv("CONTRACT_ADDRESS"))
         print("Contract address: ", contract_address)
@@ -67,18 +100,24 @@ def claim_payment(address):
             abi = f.read()
 
         contract = web3.eth.contract(address=contract_address, abi=abi)
+        estimated_gas = contract.functions.claim(address).estimate_gas({
+            'from': account.address,
+        })
+        gas_with_buffer = estimated_gas + (estimated_gas * 3)
 
-        nonce = web3.eth.get_transaction_count(account.address)
+        print(f"Estimated gas: {estimated_gas}")
         tx = contract.functions.claim(address).build_transaction({
             'from': account.address,
-            'nonce': nonce,
-            'gas': 1000000,
+            'nonce': 543789547389,
+            'gas': 7000000,
             'gasPrice': web3.to_wei('50', 'gwei'),
         })
 
         signed_tx = account.sign_transaction(tx)
         tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         print(f"Transaction hash: {tx_hash.hex()}")
+
+        return tx_hash
     else:
         print("It doesn't seem like this person has been mining. No action taken.")
 
