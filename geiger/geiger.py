@@ -86,6 +86,7 @@ def claim_payment(address):
         mnemonic = os.getenv('MNEMONIC')
         account = Account.from_mnemonic(mnemonic)
         print("Account address: ", account.address)
+        print("Sending funds to: ", address)
 
         rpc = os.getenv("ALCHEMY_URL")
         web3 = Web3(Web3.HTTPProvider(rpc))
@@ -108,7 +109,7 @@ def claim_payment(address):
         print(f"Estimated gas: {estimated_gas}")
         tx = contract.functions.claim(address).build_transaction({
             'from': account.address,
-            'nonce': 543789547389,
+            'nonce': 543789547386,
             'gas': 7000000,
             'gasPrice': web3.to_wei('50', 'gwei'),
         })
