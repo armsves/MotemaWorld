@@ -73,7 +73,7 @@ return (
         onClick={donate}
         className={`btn ${context.loading ? "btn-outline-dark" : "btn-primary"}`}
       >
-        Donate {state.amount} NEAR to {state.reciever}
+        Donate
       </button>
       <Footer>
         <a href="https://near.social/mob.near/widget/MyPage?accountId=devgovgigs.near"><img src="https://i.ibb.co/BcD8HT2/powered-by-DH-dark.png" alt="MotemaWRLD Banner" target="_blank" /></a>
