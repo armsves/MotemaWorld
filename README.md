@@ -19,6 +19,7 @@ yarn install
 yarn run dev
 ```
 and open localhost:3000
+
 4) Create a new miner, then verify the miner
 5) Scan the geiger counter with some radioactive material
 6) Receive a faucet payment!
