@@ -7,7 +7,7 @@ function listenPurchase() {
 
         if (currentpurchaseButton) {
             currentpurchaseButton.addEventListener('click', function () {
-                chrome.runtime.sendMessage({ message: 'openNewTab', url: `https://near.org/armsveshack.near/widget/Motema?productName=${productName}` });
+                chrome.runtime.sendMessage({ message: 'openNewTab', url: `https://near.org/embed/armsveshack.near/widget/MotemaWRLD?productName=${productName}` });
             });
             chrome.runtime.sendMessage({message: 'changeIcon', color: 'green'});
         }
